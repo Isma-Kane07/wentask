@@ -25,11 +25,6 @@ import { RouterOutlet } from '@angular/router';
       <!-- Content -->
       <div class="relative flex items-center justify-center min-h-screen p-4">
         <div class="w-full max-w-md">
-          <!-- Logo -->
-          <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-primary-600">WenTask</h1>
-            <p class="text-gray-600 mt-2">Gérez vos projets simplement</p>
-          </div>
           
           <!-- Router outlet for auth pages -->
           <router-outlet></router-outlet>

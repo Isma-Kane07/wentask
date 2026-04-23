@@ -38,6 +38,17 @@ import { UserResponse } from '../../../core/models/user.model';
             </div>
           </div>
           <div class="flex items-center space-x-2">
+            <!-- ✅ Bouton Tableau Kanban -->
+            <button [routerLink]="['/projects', project.id, 'board']" 
+                    class="btn-secondary flex items-center space-x-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z">
+                </path>
+              </svg>
+              <span>Tableau Kanban</span>
+            </button>
+
             <button *ngIf="canEditProject" 
                     (click)="showEditModal = true" 
                     class="btn-secondary flex items-center space-x-2">
@@ -48,12 +59,14 @@ import { UserResponse } from '../../../core/models/user.model';
               </svg>
               <span>Modifier</span>
             </button>
-            <button (click)="showTaskModal = true" class="btn-primary flex items-center space-x-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-              </svg>
-              <span>Nouvelle tâche</span>
-            </button>
+            <button *ngIf="canCreateTask" 
+        (click)="showTaskModal = true" 
+        class="btn-primary flex items-center space-x-2">
+  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+  </svg>
+  <span>Nouvelle tâche</span>
+</button>
           </div>
         </div>
 
@@ -109,7 +122,7 @@ import { UserResponse } from '../../../core/models/user.model';
         <!-- Tasks Tab -->
         <div *ngIf="activeTab === 'tasks'" class="space-y-4">
           <!-- Filter -->
-          <div class="flex items-center space-x-4">
+          <div class="flex items-center justify-between">
             <select [(ngModel)]="taskFilter" class="input-field w-48">
               <option value="ALL">Toutes les tâches</option>
               <option value="TODO">À faire</option>
@@ -117,6 +130,17 @@ import { UserResponse } from '../../../core/models/user.model';
               <option value="IN_REVIEW">En revue</option>
               <option value="DONE">Terminées</option>
             </select>
+            
+            <!-- ✅ Lien rapide vers le Kanban -->
+            <a [routerLink]="['/projects', project.id, 'board']" 
+               class="text-sm text-primary-600 hover:text-primary-700 flex items-center space-x-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z">
+                </path>
+              </svg>
+              <span>Voir en tableau Kanban</span>
+            </a>
           </div>
 
           <!-- Tasks List -->
@@ -243,6 +267,7 @@ import { UserResponse } from '../../../core/models/user.model';
         </div>
       </div>
 
+      <!-- Modals (inchangés) -->
       <!-- Create Task Modal -->
       <div *ngIf="showTaskModal" 
            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
@@ -276,16 +301,16 @@ import { UserResponse } from '../../../core/models/user.model';
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">Assigner à</label>
                   <select formControlName="assigneeId" class="input-field">
-  <option [ngValue]="null">Non assigné</option>
-  <ng-container *ngIf="project">
-    <option [ngValue]="project.owner.id">
-      {{ project.owner.firstName }} {{ project.owner.lastName }} (Propriétaire)
-    </option>
-    <option *ngFor="let member of project.members" [ngValue]="member.id">
-      {{ member.firstName }} {{ member.lastName }}
-    </option>
-  </ng-container>
-</select>
+                    <option [ngValue]="null">Non assigné</option>
+                    <ng-container *ngIf="project">
+                      <option [ngValue]="project.owner.id">
+                        {{ project.owner.firstName }} {{ project.owner.lastName }} (Propriétaire)
+                      </option>
+                      <option *ngFor="let member of project.members" [ngValue]="member.id">
+                        {{ member.firstName }} {{ member.lastName }}
+                      </option>
+                    </ng-container>
+                  </select>
                 </div>
               </div>
               
@@ -429,6 +454,11 @@ export class ProjectDetailComponent implements OnInit {
     });
   }
 
+  get canCreateTask(): boolean {
+  const user = this.authService.getUser();
+  return this.project?.owner.id === user?.id || this.authService.isAdmin();
+}
+
   get filteredTasks(): Task[] {
     if (this.taskFilter === 'ALL') return this.tasks;
     return this.tasks.filter(t => t.status === this.taskFilter);
@@ -484,7 +514,6 @@ export class ProjectDetailComponent implements OnInit {
     
     this.userService.searchUsers(this.searchQuery).subscribe({
       next: (users) => {
-        // Filtrer les utilisateurs qui ne sont pas déjà membres
         const memberIds = [this.project?.owner.id, ...(this.project?.members.map(m => m.id) || [])];
         this.searchResults = users.filter(u => !memberIds.includes(u.id));
       },

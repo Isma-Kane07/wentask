@@ -1,7 +1,9 @@
 package com.wendev.wentask.service;
 
 import com.wendev.wentask.dto.request.LoginRequest;
+import com.wendev.wentask.dto.request.ResetPasswordRequest;
 import com.wendev.wentask.dto.request.SignupRequest;
+import com.wendev.wentask.dto.request.VerifyIdentityRequest;
 import com.wendev.wentask.dto.response.JwtResponse;
 import com.wendev.wentask.dto.response.MessageResponse;
 import com.wendev.wentask.entity.User;
@@ -93,5 +95,31 @@ public class AuthService {
         userRepository.save(user);
 
         return new MessageResponse("User registered successfully!");
+    }
+
+    public MessageResponse verifyIdentity(VerifyIdentityRequest request) {
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new BadRequestException("Invalid username or email"));
+
+        if (!user.getEmail().equalsIgnoreCase(request.getEmail())) {
+            throw new BadRequestException("Invalid username or email");
+        }
+
+        return new MessageResponse("Identity verified successfully");
+    }
+
+    @Transactional
+    public MessageResponse resetPassword(ResetPasswordRequest request) {
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new BadRequestException("Invalid username or email"));
+
+        if (!user.getEmail().equalsIgnoreCase(request.getEmail())) {
+            throw new BadRequestException("Invalid username or email");
+        }
+
+        user.setPassword(encoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        return new MessageResponse("Password reset successfully");
     }
 }

@@ -53,3 +53,14 @@ export interface UserResponse {
 export interface MessageResponse {
   message: string;
 }
+
+export interface ForgotPasswordRequest {
+  username: string;
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  username: string;
+  email: string;
+  newPassword: string;
+}

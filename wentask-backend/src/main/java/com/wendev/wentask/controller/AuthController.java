@@ -1,7 +1,6 @@
 package com.wendev.wentask.controller;
 
-import com.wendev.wentask.dto.request.LoginRequest;
-import com.wendev.wentask.dto.request.SignupRequest;
+import com.wendev.wentask.dto.request.*;
 import com.wendev.wentask.dto.response.JwtResponse;
 import com.wendev.wentask.dto.response.MessageResponse;
 import com.wendev.wentask.service.AuthService;
@@ -27,5 +26,17 @@ public class AuthController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         return ResponseEntity.ok(authService.registerUser(signUpRequest));
+    }
+
+    // ✅ Nouveau : Vérifier l'identité
+    @PostMapping("/verify-identity")
+    public ResponseEntity<MessageResponse> verifyIdentity(@Valid @RequestBody VerifyIdentityRequest request) {
+        return ResponseEntity.ok(authService.verifyIdentity(request));
+    }
+
+    // ✅ Nouveau : Réinitialiser le mot de passe
+    @PostMapping("/reset-password")
+    public ResponseEntity<MessageResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        return ResponseEntity.ok(authService.resetPassword(request));
     }
 }

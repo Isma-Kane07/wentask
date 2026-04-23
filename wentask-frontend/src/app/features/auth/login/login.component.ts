@@ -11,7 +11,7 @@ import { AuthService } from '../../../core/services/auth.service';
   template: `
     <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div class="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 class="text-center text-3xl font-bold text-gray-900">
+        <h2 class="text-center text-3xl font-bold text-primary-600">
           WenTask
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600">
@@ -33,7 +33,8 @@ import { AuthService } from '../../../core/services/auth.service';
                        formControlName="username"
                        autocomplete="username"
                        class="input-field"
-                       [class.border-red-500]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+                       [class.border-red-500]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
+                       placeholder="@momuser">
                 <div *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched" 
                      class="mt-1 text-sm text-red-600">
                   Le nom d'utilisateur est requis
@@ -52,11 +53,22 @@ import { AuthService } from '../../../core/services/auth.service';
                        formControlName="password"
                        autocomplete="current-password"
                        class="input-field"
-                       [class.border-red-500]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+                       [class.border-red-500]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+                       placeholder="••••••••">
                 <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" 
                      class="mt-1 text-sm text-red-600">
                   Le mot de passe est requis
                 </div>
+              </div>
+            </div>
+
+            <!-- Forgot password link -->
+            <div class="flex items-center justify-end">
+              <div class="text-sm">
+                <a routerLink="/auth/forgot-password" 
+                   class="font-medium text-primary-600 hover:text-primary-500">
+                  Mot de passe oublié ?
+                </a>
               </div>
             </div>
 
@@ -75,24 +87,6 @@ import { AuthService } from '../../../core/services/auth.service';
               </button>
             </div>
           </form>
-
-          <div class="mt-6">
-            <div class="relative">
-              <div class="absolute inset-0 flex items-center">
-                <div class="w-full border-t border-gray-300"></div>
-              </div>
-              <div class="relative flex justify-center text-sm">
-                <span class="px-2 bg-white text-gray-500">Nouveau sur WenTask ?</span>
-              </div>
-            </div>
-
-            <div class="mt-6">
-              <a routerLink="/auth/register" 
-                 class="w-full btn-secondary block text-center">
-                Créer un compte
-              </a>
-            </div>
-          </div>
         </div>
       </div>
     </div>

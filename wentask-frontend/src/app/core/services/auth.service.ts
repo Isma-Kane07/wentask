@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { JwtResponse, LoginRequest, SignupRequest, User, MessageResponse } from '../models/user.model';
+import { JwtResponse, LoginRequest, SignupRequest, User, MessageResponse, ForgotPasswordRequest, ResetPasswordRequest } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -45,9 +45,18 @@ export class AuthService {
       );
   }
 
-  // ✅ Modifié : Seul l'admin peut appeler cette méthode
   register(userData: SignupRequest): Observable<MessageResponse> {
     return this.http.post<MessageResponse>(`${this.apiUrl}/signup`, userData);
+  }
+
+  // ✅ Nouveau : Vérifier username + email
+  verifyIdentity(data: ForgotPasswordRequest): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.apiUrl}/verify-identity`, data);
+  }
+
+  // ✅ Nouveau : Réinitialiser le mot de passe
+  resetPassword(data: ResetPasswordRequest): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.apiUrl}/reset-password`, data);
   }
 
   logout(): void {
@@ -90,7 +99,6 @@ export class AuthService {
     return this.hasRole('PROJECT_MANAGER') || this.isAdmin();
   }
 
-  // ✅ Nouveau : Vérifier si l'utilisateur peut créer des projets
   canCreateProject(): boolean {
     const user = this.getUser();
     return user?.role === 'ADMIN' || user?.role === 'PROJECT_MANAGER';
