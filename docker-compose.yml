@@ -1,0 +1,36 @@
+services:
+
+  postgres:
+    image: postgres:15
+    container_name: wentask-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: wentask_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./wentask-backend
+    container_name: wentask-backend
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+
+  frontend:
+    build: ./wentask-frontend
+    container_name: wentask-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
