@@ -21,8 +21,8 @@ spec:
       containers:
         - name: backend
 
-          image: wentask-backend:v1
-          imagePullPolicy: Never
+          image: ismak07/wentask-backend:v1
+          imagePullPolicy: Always
 
           ports:
             - containerPort: 8080
