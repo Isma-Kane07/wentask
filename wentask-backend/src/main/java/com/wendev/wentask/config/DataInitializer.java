@@ -6,6 +6,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -14,6 +15,7 @@ import java.util.Set;
 public class DataInitializer {
 
     @Bean
+    @Transactional  // ✅ Ajout de @Transactional pour garder la session Hibernate ouverte
     CommandLineRunner initDatabase(
             UserRepository userRepository,
             ProjectRepository projectRepository,
@@ -21,7 +23,7 @@ public class DataInitializer {
             CommentRepository commentRepository,
             PasswordEncoder passwordEncoder) {
         return args -> {
-            
+
             // ================================================
             // ADMIN
             // ================================================
@@ -73,33 +75,33 @@ public class DataInitializer {
                     "kadidia", "kadidia.doumbia@wentask.ml", "pass123",
                     "Kadidia", "Doumbia", User.UserRole.MEMBER);
 
+            // Flush pour synchroniser avec la base avant de créer les projets
+            userRepository.flush();
+
             // ================================================
             // 4 PROJETS
             // ================================================
-            
-            // Projet 1 : Refonte site web (Owner: Amadou)
-            Project p1 = createProjectIfNotExists(projectRepository, 
+            Project p1 = createProjectIfNotExists(projectRepository,
                     "Refonte Site Web ONG Malienne",
                     "Refonte complète du site web de l'ONG 'Aide et Développement Mali' avec intégration de dons en ligne Orange Money et Moov Money.",
                     Project.ProjectStatus.ACTIVE, pm1);
 
-            // Projet 2 : App Mobile Santé (Owner: Aminata)
             Project p2 = createProjectIfNotExists(projectRepository,
                     "App Mobile Santé Maternelle",
                     "Développement d'une application mobile de suivi de grossesse pour les centres de santé ruraux du Mali.",
                     Project.ProjectStatus.ACTIVE, pm2);
 
-            // Projet 3 : SIGA - Gestion Agricole (Owner: Amadou)
             Project p3 = createProjectIfNotExists(projectRepository,
                     "SIGA - Système de Gestion Agricole",
                     "Plateforme de gestion des coopératives agricoles de la région de Sikasso : suivi des récoltes, stocks et membres.",
                     Project.ProjectStatus.ACTIVE, pm1);
 
-            // Projet 4 : Migration Cloud (Owner: Aminata)
             Project p4 = createProjectIfNotExists(projectRepository,
                     "Migration Infrastructure Cloud Université",
                     "Migration des serveurs on-premise vers le cloud pour l'Université de Bamako avec Kubernetes.",
                     Project.ProjectStatus.ACTIVE, pm2);
+
+            projectRepository.flush();
 
             // ================================================
             // AJOUT DES MEMBRES AUX PROJETS
@@ -255,35 +257,17 @@ public class DataInitializer {
                 });
     }
 
-    private void addMembersToProject(ProjectRepository projectRepository, Project project, 
+    private void addMembersToProject(ProjectRepository projectRepository, Project project,
                                       User owner, Set<User> membersToAdd) {
-        Project refreshedProject = projectRepository.findById(project.getId()).orElse(project);
+        // ✅ Recharger le projet avec les membres initialisés
+        Project refreshedProject = projectRepository.findById(project.getId())
+                .orElse(project);
+        
         membersToAdd.forEach(member -> {
-            if (!refreshedProject.getMembers().contains(member) && !member.equals(owner)) {
+            if (!member.equals(owner)) {
                 refreshedProject.getMembers().add(member);
             }
         });
         projectRepository.save(refreshedProject);
-    }
-
-    private void createTaskIfNotExists(TaskRepository taskRepository,
-                                        String title, String description,
-                                        Task.TaskStatus status, Task.TaskPriority priority,
-                                        Project project, User assignee, User createdBy,
-                                        LocalDate dueDate) {
-        boolean exists = taskRepository.findByProject(project).stream()
-                .anyMatch(t -> t.getTitle().equals(title));
-        if (!exists) {
-            Task task = new Task();
-            task.setTitle(title);
-            task.setDescription(description);
-            task.setStatus(status);
-            task.setPriority(priority);
-            task.setProject(project);
-            task.setAssignee(assignee);
-            task.setCreatedBy(createdBy);
-            task.setDueDate(dueDate);
-            taskRepository.save(task);
-        }
     }
 }
